@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Should I Bunk?</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: #f9f9f9;
+      transition: background-color 0.4s ease;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #preview {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.4;
+      background-color: #eef;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Should I Bunk Class? 🤔</h2>
+  <form id="bunkForm">
+    <label>Mood:
+      <select name="mood" required>
+        <option value="happy">happy</option>
+        <option value="okay">okay</option>
+        <option value="tired">tired</option>
+        <option value="sad">sad</option>
+      </select>
+    </label>
+
+    <label>Sleep Hours:
+      <input type="number" name="sleep_hours" min="0" max="12" required>
+    </label>
+
+    <label>Test Soon?
+      <select name="test_soon" required>
+        <option value="yes">yes</option>
+        <option value="no">no</option>
+      </select>
+    </label>
+
+    <label>Topic Done?
+      <select name="topic_done" required>
+        <option value="yes">yes</option>
+        <option value="no">no</option>
+      </select>
+    </label>
+
+    <label>Subject Importance:
+      <select name="subject_importance" required>
+        <option value="high">high</option>
+        <option value="low">low</option>
+      </select>
+    </label>
+
+    <label>Total Classes:
+      <input type="number" name="total_classes" min="1" required>
+    </label>
+
+    <label>Attended Classes:
+      <input type="number" name="attended_classes" min="0" required>
+    </label>
+
+    <label>Minimum Required Attendance (%):
+      <input type="number" name="min_required_percent" min="0" max="100" value="75" required>
+    </label>
+
+    <button type="submit">Check if I can Bunk</button>
+  </form>
+
+  <div id="preview"></div>
+  <h3 id="result"></h3>
+
+  <script>
+    const form = document.getElementById("bunkForm");
+    const resultEl = document.getElementById("result");
+    const previewEl = document.getElementById("preview");
+
+    const moodSelect = form.elements["mood"];
+    const totalInput = form.elements["total_classes"];
+    const attendedInput = form.elements["attended_classes"];
+
+    // Restore saved values from localStorage
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = JSON.parse(localStorage.getItem("bunkFormData"));
+      if (saved) {
+        Object.keys(saved).forEach((key) => {
+          if (form.elements[key]) {
+            form.elements[key].value = saved[key];
+          }
+        });
+        moodSelect.dispatchEvent(new Event("change"));
+        updatePreview();
+      }
+    });
+
+    // Background color change based on mood
+    moodSelect.addEventListener("change", () => {
+      const mood = moodSelect.value;
+      const colors = {
+        happy: "#e3fcec",
+        okay: "#fffbe6",
+        tired: "#fce4ec",
+        sad: "#e8eaf6"
+      };
+      document.body.style.backgroundColor = colors[mood] || "#f9f9f9";
+    });
+
+    // Live attendance preview
+    function updatePreview() {
+      const total = Number(totalInput.value);
+      const attended = Number(attendedInput.value);
+      if (total > 0 && attended >= 0) {
+        const current = (attended / total * 100).toFixed(1);
+        const afterBunk = (attended / (total + 1) * 100).toFixed(1);
+        previewEl.innerHTML = `
+          📊 <strong>Current Attendance:</strong> ${current}%<br>
+          📉 <strong>After Bunking:</strong> ${afterBunk}%
+        `;
+      } else {
+        previewEl.innerHTML = "";
+      }
+    }
+
+    totalInput.addEventListener("input", updatePreview);
+    attendedInput.addEventListener("input", updatePreview);
+
+    // Form submission
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((val, key) => {
+        data[key] = isNaN(val) ? val : Number(val);
+      });
+
+      // Save inputs to localStorage
+      localStorage.setItem("bunkFormData", JSON.stringify(data));
+
+      if (data.attended_classes > data.total_classes) {
+        resultEl.innerText = "❗ Attended classes can't be more than total classes.";
+        resultEl.style.color = "orange";
+        return;
+      }
+
+      resultEl.innerText = "⏳ Checking...";
+      resultEl.style.color = "blue";
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error("Server error");
+
+        const json = await res.json();
+        if (json.should_bunk === 1) {
+          resultEl.innerText = "✅ You CAN bunk this class.";
+          resultEl.style.color = "green";
+        } else {
+          resultEl.innerText = "❌ You should NOT bunk this class.";
+          resultEl.style.color = "red";
+        }
+      } catch (err) {
+        resultEl.innerText = "⚠️ Could not connect to the server.";
+        resultEl.style.color = "orange";
+      }
+    });
+  </script>
+</body>
+</html>

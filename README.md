@@ -1,98 +1,82 @@
-🎓 Should I Bunk?
-A machine learning web application that helps students decide whether to attend or skip class based on real-life factors like sleep, tests, and mood.
+# 🎓 Should I Bunk? – A Smart Attendance Advisor
+
+> A machine learning-powered Flask web app that helps students decide whether they can safely skip class without dropping below their required attendance percentage.
+
+---
+
+## 🚀 Overview
+
+This project uses logistic regression to analyze various factors such as your mood, sleep, test schedules, and subject importance to **predict whether you should attend or can afford to skip a class** — while still maintaining your attendance above the required limit.
+
+💡 Useful for:
+- Students who want to balance rest, priorities, and attendance.
+- Learning how to build full-stack ML apps with Python and Flask.
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+![UI Screenshot](https://github.com/EerthineniAnupama/should-i-bunk/blob/master/image.png)
+
+
+### 🔍 
+![Prediction Screenshot](https://github.com/EerthineniAnupama/should-i-bunk/blob/master/Screenshot%202025-07-26%20204422.png)
+
+
+---
+
+## 🧠 Technologies Used
+
+- 🐍 Python (Logistic Regression)
+- 🧠 **joblib** (Model saving/loading)
+- 🌐 Flask (Backend server)
+- 🧾 HTML/CSS + JS (Frontend)
+- 📦 Pandas, NumPy (Data handling)
+- ☁️ Deployed via Render
+
+---
+
+## 📂 Project Structure
 
 
 
-📌 Overview
-"Should I Bunk?" is a student-focused ML web app that predicts whether it's safe to skip a class based on personal and academic context. Built with a trained Logistic Regression model and deployed on Render using Flask and Gunicorn.
+---
 
-🧠 Features
-✅ Predicts whether a student can bunk class or not
+## ✨ Features
 
-🧠 Trained ML model with 95%+ accuracy (Logistic Regression)
+- ✅ Predicts if you can afford to miss class without hurting attendance
+- 🧠 Uses logistic regression for classification
+- 📊 Takes into account mood, sleep, test pressure, subject priority
+- 🌍 Flask-based frontend for input & result display
+- 💾 Model persisted using **joblib**
+- 🔗 Fully deployable (e.g., Render)
 
-📦 Flask backend with a simple and responsive frontend
+---
 
-📝 Takes inputs like:
+## 🧪 Sample Inputs
 
-Mood
+The prediction model considers:
+- Mood (`happy`, `okay`, `sad`, `tired`)
+- Sleep hours (`0–12`)
+- Upcoming test? (`yes`/`no`)
+- Finished topic? (`yes`/`no`)
+- Subject importance (`high`, `medium`, `low`)
+- Total classes, attended classes, required attendance
 
-Sleep hours
+---
 
-Upcoming test
+## 🛠️ How to Run Locally
 
-Topic covered
+### 🔃 1. Clone this Repo
 
-Subject importance
+```bash
+git clone https://github.com/EerthineniAnupama/should-i-bunk.git
+cd should-i-bunk
+🧪 2. Set Up Virtual Environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+# or
+source venv/bin/activate  # macOS/Linux
 
-Attendance data
-
-📸 Screenshots
-Home Page	Prediction Result
-
-⚙️ Tech Stack
-Layer	Tools Used
-ML Model	Python, scikit-learn, Pandas
-Backend	Flask, Gunicorn, joblib
-Frontend	HTML5, CSS3, JavaScript
-Hosting	Render (free-tier deployment)
-Version Control	Git + GitHub
-
-
-should-i-bunk/
-├── backend/
-│   └── model.joblib           # Trained ML model
-├── templates/
-│   └── index.html             # Frontend page
-├── static/
-│   └── style.css              # Styling
-├── app.py                     # Flask backend
-├── predict.py                 # Model training script
-├── requirements.txt
-└── README.md
-
-📈 Model Details
-Algorithm: Logistic Regression
-
-Libraries: scikit-learn, pandas
-
-Accuracy: ~95.8% on validation data
-
-Input Features: mood, sleep_hours, test_soon, topic_done, subject_importance, total/attended_classes, min attendance %
-
-🧪 Sample Input
-
-{
-  "mood": "tired",
-  "sleep_hours": 4,
-  "test_soon": "no",
-  "topic_done": "yes",
-  "subject_importance": "low",
-  "total_classes": 30,
-  "attended_classes": 24,
-  "min_required_percent": 75
-}
-
-
-🌐 Deployment
-Deployed on Render with Gunicorn:
-
-# render.yaml or start command
-gunicorn app:app
-
-
-📝 Future Improvements
-Add login & user history tracking
-
-Use advanced models like Random Forest or XGBoost
-
-Improve UI/UX with animations & validations
-
-Mobile responsive version
-
-🙋‍♀️ Author
-Anupama Eerthineni
-BMS College of Engineering | AI & ML
-LinkedIn • GitHub
-
-
+📦 3. Install Dependencies

@@ -1,11 +1,16 @@
 from flask import Flask, request, jsonify, render_template
-import pickle
+import joblib
 import pandas as pd
+import sklearn
+import os
+
+print("Scikit-learn version:", sklearn.__version__)
 
 app = Flask(__name__)
 
-with open('backend/model.pkl', 'rb') as f:
-    model_pipeline = pickle.load(f)
+# Use absolute path to load model (Render-safe)
+model_path = os.path.join(os.path.dirname(__file__), 'backend', 'model.joblib')
+model_pipeline = joblib.load(model_path)
 
 @app.route('/')
 def home():
@@ -16,6 +21,7 @@ def predict():
     data = request.get_json()
 
     try:
+        # Extract input values from request JSON
         mood = data['mood']
         sleep_hours = int(data['sleep_hours'])
         test_soon = data['test_soon']
@@ -25,8 +31,10 @@ def predict():
         attended_classes = int(data['attended_classes'])
         min_required_percent = int(data['min_required_percent'])
 
+        # Calculate attendance percentage
         attendance_percent = (attended_classes / total_classes) * 100
 
+        # Create a DataFrame for prediction
         input_df = pd.DataFrame([{
             'mood': mood,
             'sleep_hours': sleep_hours,
@@ -39,6 +47,7 @@ def predict():
             'attendance_percent': attendance_percent
         }])
 
+        # Predict using the trained model
         prediction = model_pipeline.predict(input_df)[0]
         return jsonify({'should_bunk': int(prediction)})
 

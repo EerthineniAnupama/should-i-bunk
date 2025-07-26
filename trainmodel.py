@@ -43,7 +43,7 @@ model_pipeline.fit(X_train, y_train)
 
 # Save model to backend folder
 os.makedirs('backend', exist_ok=True)
-joblib.dump(model_pipeline, 'backend/bunk_model.joblib')
+joblib.dump(model_pipeline, 'backend/model.joblib')
 
 # Evaluate
 accuracy = model_pipeline.score(X_test, y_test) * 100
